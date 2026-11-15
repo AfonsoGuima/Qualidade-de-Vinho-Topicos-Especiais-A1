@@ -28,6 +28,7 @@ Python-QUALIDADE-VINHO/
 │       ├── analise.html          # Página de Limpeza, Achados, Gráficos e Comparação de Modelos
 │       └── previsao.html         # Página de Formulário Interativo e Previsão (predict_proba)
 ├── requirements.txt              # Bibliotecas necessárias para rodar o projeto
+├── .gitignore                    # Arquivo que lista arquivos e diretórios que devem ser ignorados pelo Git
 └── README.md                     # Documentação do projeto
 ```
 
@@ -175,8 +176,8 @@ Foram selecionadas 4 características físico-químicas medidas em laboratório 
 
 ## Participação de Cada Integrante
 
-| **Afonso Guimarães** | *Escolha do CSV no site Kaggle, Treinamento dos modelos de Machine Learning, carregamento e criação do formulário de previsão, criação e revisão do README.md* |
-| **Eduardo Xavier** | *Rotas Flask no app.py e estruturação dos arquivos html* |
-| **Luis Arthur** | *Leitura, validação, limpeza, gráficos, estruturação do dados.py* |
+- **Afonso Guimarães:** *Escolha do CSV no site Kaggle, Treinamento dos modelos de Machine Learning, carregamento e criação do formulário de previsão, criação e revisão do README.md*
+- **Eduardo Xavier:** *Rotas Flask no app.py e estruturação dos arquivos html*
+- **Luis Arthur:** *Leitura, validação, limpeza, gráficos, estruturação do dados.py*
 
 **O projeto foi feito via chamada, com compartilhamento de tela. Portanto, todos os integrantes participaram de todas as etapas. Mas alguns focaram mais em uma etapa ao qual foi designada a ele. A escolha dos temas do gráfico foi feita em conjunto e com o auxilio de IA para saber se os temas faziam sentido serem aplicados ao projeto.**

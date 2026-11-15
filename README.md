@@ -9,7 +9,7 @@ Aplicação web desenvolvida em **Python** com **Flask**, **Pandas**, **Matplotl
 ## Estrutura do Projeto
 
 ```text
-Python-QUALIDADE-VINHO/
+Qualidade-de-Vinho-Topicos-Especiais-A1/
 ├── data/
 │   ├── winequality-red.csv       # Base de dados padrão (UCI Wine Quality - Red Wine)
 │   └── uploads/                  # Arquivos CSV enviados pelos usuários via interface

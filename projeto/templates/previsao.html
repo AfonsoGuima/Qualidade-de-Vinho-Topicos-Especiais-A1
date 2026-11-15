@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previsão de Qualidade do Vinho - UCI Wine Quality</title>
+    <style>
+        :root {
+            --vinho-escuro: #4a0e17;
+            --bordo: #800020;
+            --bordo-claro: #a4161a;
+            --fundo: #0d0d10;
+            --card-bg: #18181d;
+            --card-secundario: #202027;
+            --texto: #ffffff;
+            --borda: #34282c;
+            --erro-bg: #3b151b;
+            --erro-txt: #ffdce0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--fundo);
+            color: var(--texto);
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(135deg, var(--vinho-escuro), var(--bordo));
+            color: #ffffff;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+        }
+        .header-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header-title h1 { font-size: 1.6rem; margin-bottom: 0.2rem; color: #ffffff; }
+        .header-title p { font-size: 0.92rem; opacity: 0.92; color: #ffffff; }
+        nav { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.55rem 1.1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        nav a:hover, nav a.ativo {
+            background: var(--bordo-claro);
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+        main {
+            max-width: 980px;
+            margin: 2rem auto;
+            padding: 0 1.2rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 1.6rem;
+            margin-bottom: 1.6rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+        }
+        .card h2 {
+            color: #ffffff;
+            font-size: 1.32rem;
+            margin-bottom: 0.9rem;
+            border-bottom: 2px solid var(--bordo);
+            padding-bottom: 0.45rem;
+        }
+        code {
+            background: #282832;
+            color: #ffffff;
+            padding: 0.12rem 0.4rem;
+            border-radius: 4px;
+        }
+        .aviso-modelo {
+            background: var(--card-secundario);
+            border-left: 5px solid var(--bordo);
+            color: #ffffff;
+            padding: 0.9rem 1.15rem;
+            border-radius: 6px;
+            margin-bottom: 1.3rem;
+            font-size: 0.94rem;
+        }
+        .alerta-erro {
+            background: var(--erro-bg);
+            color: var(--erro-txt);
+            border-left: 5px solid #dc3545;
+            padding: 0.95rem 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 720px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        .campo {
+            display: flex;
+            flex-direction: column;
+        }
+        .campo label {
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+        .campo .faixa {
+            font-size: 0.84rem;
+            color: #d6d6dc;
+            margin-bottom: 0.4rem;
+        }
+        .campo input {
+            padding: 0.65rem 0.8rem;
+            background: #121216;
+            color: #ffffff;
+            border: 1px solid #444452;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .campo input::placeholder {
+            color: #888894;
+        }
+        .campo input:focus {
+            outline: none;
+            border-color: var(--bordo-claro);
+            box-shadow: 0 0 0 2px rgba(164,22,26,0.35);
+        }
+        .acoes {
+            margin-top: 1.4rem;
+            display: flex;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn {
+            background: var(--bordo);
+            color: #ffffff;
+            border: none;
+            padding: 0.72rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: var(--bordo-claro); }
+        .btn-exemplo {
+            background: var(--card-secundario);
+            color: #ffffff;
+            border: 1px solid #444452;
+            padding: 0.55rem 0.95rem;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-exemplo:hover { background: #2d2d37; }
+        .resultado-box {
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.6rem;
+            border: 2px solid;
+        }
+        .resultado-alta {
+            background: #142e1f;
+            border-color: #2ea043;
+            color: #ffffff;
+        }
+        .resultado-comum {
+            background: #2b2214;
+            border-color: #d29922;
+            color: #ffffff;
+        }
+        .prob-barras {
+            margin-top: 1rem;
+            display: grid;
+            gap: 0.6rem;
+        }
+        .prob-item {
+            background: rgba(0,0,0,0.35);
+            color: #ffffff;
+            padding: 0.6rem 0.9rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-title">
+                <h1>08 • Qualidade de Vinhos (UCI Wine Quality)</h1>
+                <p>Previsão Supervisionada por Formulário no Navegador</p>
+            </div>
+            <nav>
+                <a href="{{ url_for('inicio') }}">1. Upload e Validação</a>
+                <a href="{{ url_for('analises') }}">2. Análise, Gráficos e Modelos</a>
+                <a href="{{ url_for('previsao') }}" class="ativo">3. Previsão no Navegador</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Aviso obrigatório informando qual base, modelo e versão estão em uso -->
+        <div class="aviso-modelo">
+            <strong>Informações do Modelo Ativo:</strong><br>
+            • <strong>Modelo em uso:</strong> {{ info_modelo.modelo_escolhido }} (Versão <strong>{{ info_modelo.versao_modelo }}</strong>)<br>
+            • <strong>Base usada no treinamento:</strong> <code>{{ info_modelo.base_usada }}</code> ({{ info_modelo.linhas_limpas_treino }} registros únicos após limpeza, divisão {{ info_modelo.proporcao_treino }} treino / {{ info_modelo.proporcao_teste }} teste, <code>random_state={{ info_modelo.random_state }}</code>)<br>
+            • <strong>Regra de Classificação (y):</strong> <em>Alta qualidade</em> (<code>quality &ge; {{ limite_alta }}</code>) vs. <em>Qualidade comum</em> (<code>quality &lt; {{ limite_alta }}</code>)
+        </div>
+
+        <!-- Exibição de mensagens amigáveis para entradas vazias, não numéricas ou fora da faixa -->
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                {% for categoria, msg in mensagens %}
+                    <div class="alerta-erro">
+                        <strong>Atenção na validação do formulário:</strong> {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Exibição do Resultado da Previsão -->
+        {% if resultado %}
+        <section class="resultado-box {% if resultado.classe_num == 1 %}resultado-alta{% else %}resultado-comum{% endif %}">
+            <h2 style="margin-bottom: 0.4rem; color: #ffffff;">
+                Resultado da Previsão: {{ resultado.classe }}
+            </h2>
+            <p style="font-size: 1.08rem;">
+                Confiança na classe prevista (<code>predict_proba</code>): <strong>{{ resultado.probabilidade }}%</strong>
+            </p>
+
+            <div class="prob-barras">
+                <div class="prob-item">
+                    <strong>Probabilidade de Alta qualidade (quality &ge; {{ limite_alta }}):</strong> {{ resultado.prob_alta }}%
+                </div>
+                <div class="prob-item">
+                    <strong>Probabilidade de Qualidade comum (quality &lt; {{ limite_alta }}):</strong> {{ resultado.prob_comum }}%
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Formulário com os 4 campos correspondentes a X -->
+        <section class="card">
+            <h2>Formulário de Características Físico-Químicas (Variáveis X)</h2>
+            <p>
+                Preencha as 4 variáveis de entrada na mesma unidade utilizada no treinamento para estimar a qualidade do vinho:
+            </p>
+
+            <form action="{{ url_for('previsao') }}" method="POST">
+                <div class="form-grid">
+                    <!-- Campo 1: Álcool -->
+                    <div class="campo">
+                        <label for="alcohol">1. Álcool (alcohol) — em % vol</label>
+                        <span class="faixa">
+                            Faixa aceita: <strong>{{ info_colunas['alcohol'].min }} a {{ info_colunas['alcohol'].max }} % vol</strong> (Ex: 10.5)
+                        </span>
+                        <input
+                            type="text"
+                            id="alcohol"
+                            name="alcohol"
+                            placeholder="Ex: 11.8"
+                            value="{{ valores_form['alcohol'] }}"
+                        >
+                    </div>
+
+                    <!-- Campo 2: Acidez Volátil -->
+                    <div class="campo">
+                        <label for="volatile_acidity">2. Acidez Volátil (volatile acidity) — em g/L</label>
+                        <span class="faixa">
+                            Faixa aceita: <strong>{{ info_colunas['volatile acidity'].min }} a {{ info_colunas['volatile acidity'].max }} g/L</strong> (Ex: 0.35)
+                        </span>
+                        <input
+                            type="text"
+                            id="volatile_acidity"
+                            name="volatile acidity"
+                            placeholder="Ex: 0.32"
+                            value="{{ valores_form['volatile acidity'] }}"
+                        >
+                    </div>
+
+                    <!-- Campo 3: Densidade -->
+                    <div class="campo">
+                        <label for="density">3. Densidade (density) — em g/cm³</label>
+                        <span class="faixa">
+                            Faixa aceita: <strong>{{ info_colunas['density'].min }} a {{ info_colunas['density'].max }} g/cm³</strong> (Ex: 0.9952)
+                        </span>
+                        <input
+                            type="text"
+                            id="density"
+                            name="density"
+                            placeholder="Ex: 0.9952"
+                            value="{{ valores_form['density'] }}"
+                        >
+                    </div>
+
+                    <!-- Campo 4: Sulfatos -->
+                    <div class="campo">
+                        <label for="sulphates">4. Sulfatos (sulphates) — em g/L</label>
+                        <span class="faixa">
+                            Faixa aceita: <strong>{{ info_colunas['sulphates'].min }} a {{ info_colunas['sulphates'].max }} g/L</strong> (Ex: 0.75)
+                        </span>
+                        <input
+                            type="text"
+                            id="sulphates"
+                            name="sulphates"
+                            placeholder="Ex: 0.78"
+                            value="{{ valores_form['sulphates'] }}"
+                        >
+                    </div>
+                </div>
+
+                <div class="acoes">
+                    <button type="submit" class="btn">Prever Qualidade do Vinho</button>
+                    <button type="button" class="btn-exemplo" onclick="preencherExemplo(12.5, 0.28, 0.9946, 0.82)">
+                        Preencher Exemplo: Alta Qualidade
+                    </button>
+                    <button type="button" class="btn-exemplo" onclick="preencherExemplo(9.4, 0.70, 0.9978, 0.56)">
+                        Preencher Exemplo: Qualidade Comum
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        function preencherExemplo(alcool, acidez, densidade, sulfatos) {
+            document.getElementById("alcohol").value = alcool;
+            document.getElementById("volatile_acidity").value = acidez;
+            document.getElementById("density").value = densidade;
+            document.getElementById("sulphates").value = sulfatos;
+        }
+    </script>
+</body>
+</html>

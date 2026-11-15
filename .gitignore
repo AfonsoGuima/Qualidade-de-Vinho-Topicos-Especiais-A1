@@ -1,0 +1,18 @@
+# Ambiente virtual do Python
+.venv/
+venv/
+env/
+
+# Arquivos temporários e cache de compilação do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# CSVs temporários enviados em testes pelo formulário de upload
+data/uploads/*.csv
+
+# Configurações locais dee editores/IDEs e sistema operacional
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

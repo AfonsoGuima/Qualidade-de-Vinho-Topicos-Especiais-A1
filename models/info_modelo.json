@@ -1,0 +1,98 @@
+{
+    "base_usada": "data/winequality-red.csv (UCI Wine Quality - Vinhos Tintos)",
+    "versao_modelo": "1.0",
+    "data_treino": "15/11/2026 12:54",
+    "features": [
+        "alcohol",
+        "volatile acidity",
+        "density",
+        "sulphates"
+    ],
+    "coluna_alvo": "quality",
+    "limite_alta": 7,
+    "proporcao_treino": "80%",
+    "proporcao_teste": "20%",
+    "test_size": 0.2,
+    "random_state": 42,
+    "linhas_brutas_treino": 1599,
+    "linhas_limpas_treino": 1359,
+    "duplicatas_removidas_treino": 240,
+    "tamanho_treino": 1087,
+    "tamanho_teste": 272,
+    "qtd_comum_teste": 235,
+    "qtd_alta_teste": 37,
+    "perc_comum_teste": 86.4,
+    "perc_alta_teste": 13.6,
+    "linha_de_base": 86.4,
+    "modelos": [
+        {
+            "nome": "Decision Tree (Árvore de Decisão)",
+            "descricao": "Árvore de decisão única com profundidade máxima (max_depth=4, random_state=42).",
+            "acuracia": 87.87,
+            "precisao": 58.33,
+            "recall": 37.84,
+            "f1": 45.9,
+            "matriz_confusao": [
+                [
+                    225,
+                    10
+                ],
+                [
+                    23,
+                    14
+                ]
+            ],
+            "vn": 225,
+            "fp": 10,
+            "fn": 23,
+            "vp": 14
+        },
+        {
+            "nome": "Random Forest (Floresta Aleatória)",
+            "descricao": "Comitê (ensemble) de 100 árvores de decisão independentes (n_estimators=100, random_state=42).",
+            "acuracia": 86.4,
+            "precisao": 50.0,
+            "recall": 29.73,
+            "f1": 37.29,
+            "matriz_confusao": [
+                [
+                    224,
+                    11
+                ],
+                [
+                    26,
+                    11
+                ]
+            ],
+            "vn": 224,
+            "fp": 11,
+            "fn": 26,
+            "vp": 11
+        }
+    ],
+    "modelo_escolhido": "Decision Tree (Árvore de Decisão)",
+    "metricas_escolhido": {
+        "nome": "Decision Tree (Árvore de Decisão)",
+        "descricao": "Árvore de decisão única com profundidade máxima (max_depth=4, random_state=42).",
+        "acuracia": 87.87,
+        "precisao": 58.33,
+        "recall": 37.84,
+        "f1": 45.9,
+        "matriz_confusao": [
+            [
+                225,
+                10
+            ],
+            [
+                23,
+                14
+            ]
+        ],
+        "vn": 225,
+        "fp": 10,
+        "fn": 23,
+        "vp": 14
+    },
+    "justificativa_escolha": "O modelo Decision Tree (Árvore de Decisão) foi selecionado para a aplicação final por obter o melhor desempenho no conjunto de teste, alcançando Acurácia de 87.87% (superando a linha de base de 86.4%), Precisão de 58.33%, Recall de 37.84% e F1-Score de 45.9% (contra Acurácia de 86.4%, Recall de 29.73% e F1-Score de 37.29% do modelo Random Forest (Floresta Aleatória)). Além de identificar mais vinhos de alta qualidade (14 Verdadeiros Positivos contra 11), o modelo oferece estimativas de probabilidade (predict_proba) consistentes para o formulário interativo.",
+    "interpretacao_erros": "Na classificação de vinhos, um Falso Positivo (FP) ocorre quando um vinho comum (quality < 7) é previsto como 'Alta Qualidade', gerando risco à reputação caso um lote mediano seja comercializado como premium. Já um Falso Negativo (FN) ocorre quando um vinho realmente superior (quality >= 7) é classificado como comum, representando perda de oportunidade comercial (e ocorre com maior frequência porque apenas 13.6% da base pertence à classe alta). No conjunto de teste (272 vinhos únicos), o Random Forest registrou 11 Falsos Positivos e 26 Falsos Negativos (acertando 11 de 37 vinhos superiores), enquanto a Decision Tree registrou 10 Falsos Positivos e 23 Falsos Negativos (acertando 14 de 37 vinhos superiores)."
+}

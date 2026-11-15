@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload e Validação - Qualidade de Vinhos (UCI)</title>
+    <style>
+        :root {
+            --vinho-escuro: #4a0e17;
+            --vinho-principal: #7b1fa2;
+            --bordo: #800020;
+            --bordo-claro: #a4161a;
+            --fundo: #0d0d10;
+            --card-bg: #18181d;
+            --card-secundario: #202027;
+            --texto: #ffffff;
+            --texto-suave: #d6d6dc;
+            --borda: #34282c;
+            --sucesso-bg: #143625;
+            --sucesso-txt: #e6ffed;
+            --erro-bg: #3b151b;
+            --erro-txt: #ffdce0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--fundo);
+            color: var(--texto);
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(135deg, var(--vinho-escuro), var(--bordo));
+            color: #ffffff;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+        }
+        .header-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header-title h1 { font-size: 1.6rem; margin-bottom: 0.2rem; color: #ffffff; }
+        .header-title p { font-size: 0.92rem; opacity: 0.92; color: #ffffff; }
+        nav { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.55rem 1.1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        nav a:hover, nav a.ativo {
+            background: var(--bordo-claro);
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+        main {
+            max-width: 1180px;
+            margin: 2rem auto;
+            padding: 0 1.2rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 1.6rem;
+            margin-bottom: 1.6rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+        }
+        .card h2 {
+            color: #ffffff;
+            font-size: 1.3rem;
+            margin-bottom: 0.9rem;
+            border-bottom: 2px solid var(--bordo);
+            padding-bottom: 0.45rem;
+        }
+        .card h3 {
+            color: #ffffff;
+            font-size: 1.08rem;
+            margin: 1rem 0 0.5rem;
+        }
+        code {
+            background: #282832;
+            color: #ffffff;
+            padding: 0.12rem 0.4rem;
+            border-radius: 4px;
+        }
+        .alertas { margin-bottom: 1.4rem; }
+        .alerta {
+            padding: 0.95rem 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 0.7rem;
+            font-weight: 500;
+            border-left: 5px solid;
+        }
+        .alerta.erro {
+            background: var(--erro-bg);
+            color: var(--erro-txt);
+            border-left-color: #dc3545;
+        }
+        .alerta.sucesso {
+            background: var(--sucesso-bg);
+            color: var(--sucesso-txt);
+            border-left-color: #2ea043;
+        }
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.2rem;
+            align-items: center;
+        }
+        @media (max-width: 768px) {
+            .upload-grid { grid-template-columns: 1fr; }
+        }
+        .file-box {
+            border: 2px dashed var(--bordo);
+            background: var(--card-secundario);
+            padding: 1.3rem;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        input[type="file"] {
+            font-size: 0.95rem;
+            color: var(--texto);
+        }
+        .btn {
+            display: inline-block;
+            background: var(--bordo);
+            color: #ffffff;
+            border: none;
+            padding: 0.68rem 1.35rem;
+            border-radius: 6px;
+            font-size: 0.96rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: var(--bordo-claro); }
+        .btn-secundario {
+            background: #2b2b35;
+            border: 1px solid #444452;
+        }
+        .btn-secundario:hover { background: #383845; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.8rem;
+            font-size: 0.92rem;
+            color: var(--texto);
+        }
+        th, td {
+            border: 1px solid var(--borda);
+            padding: 0.65rem 0.8rem;
+            text-align: left;
+        }
+        th {
+            background: var(--vinho-escuro);
+            color: #ffffff;
+            font-weight: 700;
+        }
+        tr:nth-child(even) { background: var(--card-secundario); }
+        tr:nth-child(odd) { background: var(--card-bg); }
+        .table-scroll {
+            overflow-x: auto;
+            margin-top: 0.8rem;
+        }
+        .badges {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        .badge {
+            background: var(--card-secundario);
+            border: 1px solid var(--bordo);
+            color: #ffffff;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .tag-x {
+            background: #1f3a60;
+            color: #ffffff;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .tag-y {
+            background: var(--bordo);
+            color: #ffffff;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-title">
+                <h1>08 • Qualidade de Vinhos (UCI Wine Quality)</h1>
+                <p>Classificação Supervisionada com Flask, Pandas e Scikit-Learn</p>
+            </div>
+            <nav>
+                <a href="{{ url_for('inicio') }}" class="ativo">1. Upload e Validação</a>
+                <a href="{{ url_for('analises') }}">2. Análise, Gráficos e Modelos</a>
+                <a href="{{ url_for('previsao') }}">3. Previsão no Navegador</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Exibição de mensagens de erro ou sucesso via flash() -->
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <div class="alertas">
+                    {% for categoria, msg in mensagens %}
+                        <div class="alerta {{ categoria }}">{{ msg }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Seção 1: Upload de CSV -->
+        <section class="card">
+            <h2>Upload de Arquivo CSV para Análise</h2>
+            <p style="margin-bottom: 1rem;">
+                Envie um arquivo <strong>.csv</strong> (separado por <code>,</code> ou <code>;</code>) contendo registros de vinhos.
+                O arquivo original é preservado intacto em <code>data/uploads/</code> e utilizado para atualizar as estatísticas e os gráficos da aplicação.
+            </p>
+
+            <div class="upload-grid">
+                <form action="{{ url_for('inicio') }}" method="POST" enctype="multipart/form-data" class="file-box">
+                    <div>
+                        <label for="arquivo" style="font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                            Selecione seu arquivo CSV:
+                        </label>
+                        <input type="file" id="arquivo" name="arquivo" accept=".csv">
+                    </div>
+                    <button type="submit" class="btn">Enviar e Validar CSV</button>
+                </form>
+
+                <form action="{{ url_for('inicio') }}" method="POST">
+                    <input type="hidden" name="usar_padrao" value="1">
+                    <button type="submit" class="btn btn-secundario" title="Carrega data/winequality-red.csv">
+                        Carregar Base Padrão (UCI)
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Seção 2: Resultado da validação e amostra (se um CSV válido foi carregado) -->
+        {% if sucesso_upload and amostra_linhas %}
+        <section class="card">
+            <h2>Amostra do Arquivo Validado: {{ nome_arquivo }}</h2>
+            <div class="badges">
+                <div class="badge">Quantidade de Registros (Linhas): <strong>{{ qtd_linhas }}</strong></div>
+                <div class="badge">Quantidade de Colunas: <strong>{{ qtd_colunas }}</strong></div>
+                <div class="badge">Colunas Obrigatórias Presentes: <strong>Sim ({{ features|length + 1 }}/{{ features|length + 1 }})</strong></div>
+            </div>
+
+            <p style="margin-bottom: 0.8rem;">
+                Abaixo estão as <strong>10 primeiras linhas</strong> do arquivo bruto (antes do pipeline de limpeza):
+            </p>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            {% for col in amostra_colunas %}
+                                <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for linha in amostra_linhas %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                {% for col in amostra_colunas %}
+                                    <td>{{ linha[col] }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 1.3rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="{{ url_for('analises') }}" class="btn">Ir para Limpeza, Gráficos e Modelos &rarr;</a>
+                <a href="{{ url_for('previsao') }}" class="btn btn-secundario">Ir para Formulário de Previsão &rarr;</a>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Seção 3: Explicação das Colunas Aceitas e Definição de X e y -->
+        <section class="card">
+            <h2>Colunas Obrigatórias Aceitas e Definição de X e y</h2>
+            <p>
+                Para que o arquivo CSV seja aceito pela validação, ele deve conter obrigatoriamente as <strong>5 colunas numéricas</strong> abaixo
+                (outras colunas físico-químicas da base UCI, como <em>fixed acidity</em>, <em>citric acid</em> ou <em>pH</em>, podem estar presentes no arquivo, mas o modelo utiliza exclusivamente as 4 variáveis de entrada definidas para o tema):
+            </p>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Coluna no CSV</th>
+                            <th>Papel no Modelo</th>
+                            <th>Nome e Unidade</th>
+                            <th>Faixa de Referência</th>
+                            <th>Por que ajuda a responder à pergunta do projeto?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for col in features %}
+                        <tr>
+                            <td><code>{{ col }}</code></td>
+                            <td><span class="tag-x">Entrada (X)</span></td>
+                            <td>{{ info_colunas[col].nome }} ({{ info_colunas[col].unidade }})</td>
+                            <td>{{ info_colunas[col].min }} a {{ info_colunas[col].max }} {{ info_colunas[col].unidade }}</td>
+                            <td>{{ info_colunas[col].explicacao }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td><code>{{ col_qualidade }}</code></td>
+                            <td><span class="tag-y">Alvo Original (y)</span></td>
+                            <td>{{ info_colunas[col_qualidade].nome }} ({{ info_colunas[col_qualidade].unidade }})</td>
+                            <td>0 a 10 (inteiro)</td>
+                            <td>
+                                {{ info_colunas[col_qualidade].explicacao }}
+                                <strong>Importante:</strong> A coluna <code>quality</code> nunca entra em <code>X</code> para evitar vazamento direto da resposta.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Regras de Validação Verificadas no Upload</h3>
+            <ul style="margin-left: 1.4rem; margin-top: 0.4rem;">
+                <li><strong>Arquivo vazio ou ausente:</strong> Rejeita envios sem arquivo ou com 0 linhas/bytes.</li>
+                <li><strong>Formato do arquivo:</strong> Aceita apenas arquivos com extensão <code>.csv</code>.</li>
+                <li><strong>Separador de colunas:</strong> Tenta automaticamente ponto e vírgula (<code>;</code>) e depois vírgula (<code>,</code>), exibindo erro caso o separador seja incompatível.</li>
+                <li><strong>Colunas obrigatórias:</strong> Confere a presença de <code>alcohol</code>, <code>volatile acidity</code>, <code>density</code>, <code>sulphates</code> e <code>quality</code>.</li>
+                <li><strong>Valores numéricos:</strong> Confere se todas as colunas obrigatórias possuem valores numéricos válidos.</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

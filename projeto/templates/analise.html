@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise, Gráficos e Modelos - Qualidade de Vinhos (UCI)</title>
+    <style>
+        :root {
+            --vinho-escuro: #4a0e17;
+            --bordo: #800020;
+            --bordo-claro: #a4161a;
+            --fundo: #0d0d10;
+            --card-bg: #18181d;
+            --card-secundario: #202027;
+            --texto: #ffffff;
+            --borda: #34282c;
+            --destaque-bg: #24161b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--fundo);
+            color: var(--texto);
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(135deg, var(--vinho-escuro), var(--bordo));
+            color: #ffffff;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+        }
+        .header-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header-title h1 { font-size: 1.6rem; margin-bottom: 0.2rem; color: #ffffff; }
+        .header-title p { font-size: 0.92rem; opacity: 0.92; color: #ffffff; }
+        nav { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.55rem 1.1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        nav a:hover, nav a.ativo {
+            background: var(--bordo-claro);
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+        main {
+            max-width: 1180px;
+            margin: 2rem auto;
+            padding: 0 1.2rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 1.6rem;
+            margin-bottom: 1.6rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+        }
+        .card h2 {
+            color: #ffffff;
+            font-size: 1.32rem;
+            margin-bottom: 0.9rem;
+            border-bottom: 2px solid var(--bordo);
+            padding-bottom: 0.45rem;
+        }
+        .card h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin: 1.2rem 0 0.5rem;
+        }
+        code {
+            background: #282832;
+            color: #ffffff;
+            padding: 0.12rem 0.4rem;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.75rem;
+            font-size: 0.93rem;
+            color: var(--texto);
+        }
+        th, td {
+            border: 1px solid var(--borda);
+            padding: 0.65rem 0.85rem;
+            text-align: left;
+        }
+        th {
+            background: var(--vinho-escuro);
+            color: #ffffff;
+            font-weight: 700;
+        }
+        tr:nth-child(even) { background: var(--card-secundario); }
+        tr:nth-child(odd) { background: var(--card-bg); }
+        .achado-lista {
+            list-style: none;
+            display: grid;
+            gap: 0.85rem;
+            margin-top: 0.8rem;
+        }
+        .achado-item {
+            background: var(--destaque-bg);
+            border-left: 5px solid var(--bordo);
+            color: #ffffff;
+            padding: 0.95rem 1.15rem;
+            border-radius: 6px;
+        }
+        .grafico-bloco {
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            padding: 1.2rem;
+            margin-bottom: 1.4rem;
+            background: var(--card-secundario);
+        }
+        .grafico-bloco img {
+            width: 100%;
+            max-width: 980px;
+            height: auto;
+            display: block;
+            margin: 0.6rem auto;
+            border-radius: 6px;
+            border: 1px solid var(--borda);
+        }
+        .legenda-grafico {
+            background: var(--destaque-bg);
+            border-left: 4px solid var(--bordo);
+            color: #ffffff;
+            padding: 0.85rem 1.1rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+            font-size: 0.94rem;
+        }
+        .matrizes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.4rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 860px) {
+            .matrizes-grid { grid-template-columns: 1fr; }
+        }
+        .matriz-card {
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            padding: 1.1rem;
+            background: var(--card-secundario);
+        }
+        .destaque-escolhido {
+            background: #142e1f;
+            border: 1px solid #2ea043;
+            color: #ffffff;
+            padding: 1.1rem 1.3rem;
+            border-radius: 8px;
+            margin-top: 1.2rem;
+        }
+        .badge-escolhido {
+            background: #198754;
+            color: #ffffff;
+            font-size: 0.78rem;
+            padding: 0.18rem 0.55rem;
+            border-radius: 4px;
+            margin-left: 0.4rem;
+            font-weight: 700;
+        }
+        .btn {
+            display: inline-block;
+            background: var(--bordo);
+            color: #ffffff;
+            padding: 0.68rem 1.35rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn:hover { background: var(--bordo-claro); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-title">
+                <h1>08 • Qualidade de Vinhos (UCI Wine Quality)</h1>
+                <p>Base em análise: <strong>{{ nome_arquivo }}</strong></p>
+            </div>
+            <nav>
+                <a href="{{ url_for('inicio') }}">1. Upload e Validação</a>
+                <a href="{{ url_for('analises') }}" class="ativo">2. Análise, Gráficos e Modelos</a>
+                <a href="{{ url_for('previsao') }}">3. Previsão no Navegador</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- SEÇÃO 1: LIMPEZA COM PANDAS -->
+        <section class="card">
+            <h2>1. Limpeza e Preparação dos Dados com Pandas</h2>
+            <p>
+                Antes de gerar as estatísticas, gráficos e treinar os modelos, o conjunto de dados passa pelo pipeline de limpeza
+                (função <code>limpar(df)</code> em <code>dados.py</code>), preservando o arquivo CSV original intacto em disco.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Total de Linhas (Antes)</th>
+                        <th>Duplicatas Removidas</th>
+                        <th>Valores Ausentes Tratados</th>
+                        <th>Valores Impossíveis Removidos</th>
+                        <th>Total de Linhas (Depois)</th>
+                        <th>Quantidade de Colunas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>{{ relatorio.linhas_antes }}</strong></td>
+                        <td>{{ relatorio.duplicatas_removidas }}</td>
+                        <td>{{ relatorio.ausentes_tratados }}</td>
+                        <td>{{ relatorio.impossiveis_removidos }}</td>
+                        <td><strong>{{ relatorio.linhas_depois }}</strong></td>
+                        <td>{{ relatorio.colunas }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>O que foi feito e por quê?</h3>
+            <ul style="margin-left: 1.4rem; margin-top: 0.4rem;">
+                {% for exp in relatorio.explicacoes %}
+                    <li style="margin-bottom: 0.35rem;">{{ exp }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- SEÇÃO 2: ACHADOS E ESTATÍSTICAS COM GROUPBY -->
+        <section class="card">
+            <h2>2. Estatísticas, Agrupamentos (Groupby) e Achados sobre a Base</h2>
+            <p>
+                Principais descobertas obtidas a partir do agrupamento dos vinhos por classe
+                (<strong>Qualidade Comum: quality &lt; {{ limite_alta }}</strong> vs. <strong>Alta Qualidade: quality &ge; {{ limite_alta }}</strong>):
+            </p>
+
+            <ul class="achado-lista">
+                {% for achado in achados %}
+                    <li class="achado-item">{{ achado }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Tabela Comparativa por Classe (Agrupamento Groupby: Média e Mediana)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variável de Entrada (X)</th>
+                        <th>Unidade</th>
+                        <th>Média — Qualidade Comum (0)</th>
+                        <th>Média — Alta Qualidade (1)</th>
+                        <th>Mediana — Qualidade Comum (0)</th>
+                        <th>Mediana — Alta Qualidade (1)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for col in features %}
+                    <tr>
+                        <td><strong>{{ info_colunas[col].nome }}</strong></td>
+                        <td>{{ info_colunas[col].unidade }}</td>
+                        <td>{{ medias_por_classe.get(0, {}).get(col, '-') }}</td>
+                        <td><strong>{{ medias_por_classe.get(1, {}).get(col, '-') }}</strong></td>
+                        <td>{{ medianas_por_classe.get(0, {}).get(col, '-') }}</td>
+                        <td><strong>{{ medianas_por_classe.get(1, {}).get(col, '-') }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SEÇÃO 3: AS 3 VISUALIZAÇÕES RELEVANTES -->
+        <section class="card">
+            <h2>3. Visualizações Relevantes (Atualizadas a partir do CSV)</h2>
+
+            <!-- Visualização 1 -->
+            <div class="grafico-bloco">
+                <h3>Visualização 1: Distribuição das Classes (Barras) + Histograma de Quality (Limite ≥ {{ limite_alta }})</h3>
+                <img src="{{ url_for('static', filename='graficos/distribuicao_classes.png', v=versao_grafico) }}" alt="Distribuição das classes e histograma de quality">
+                <div class="legenda-grafico">
+                    <strong>Interpretação (Desequilíbrio e Justificativa do Limite 7):</strong>
+                    O histograma à direita exibe a concentração das notas de <code>quality</code> do arquivo enviado (<strong>{{ nome_arquivo }}</strong>, com {{ relatorio.linhas_depois }} registros após limpeza).
+                    Definir o ponto de corte em <code>quality &ge; 7</code> separa os vinhos genuinamente superiores (classe 1) dos vinhos cotidianos (classe 0). Por conta do desequilíbrio entre as classes, além da acurácia, avaliamos Recall, F1-Score e a Linha de Base.
+                </div>
+            </div>
+
+            <!-- Visualização 2 -->
+            <div class="grafico-bloco">
+                <h3>Visualização 2: Boxplot e Histograma do Teor Alcoólico (alcohol) por Classe</h3>
+                <img src="{{ url_for('static', filename='graficos/alcool_por_classe.png', v=versao_grafico) }}" alt="Boxplot e Histograma de Álcool por Classe">
+                <div class="legenda-grafico">
+                    <strong>Interpretação (Concentração, Dispersão e Valores Extremos):</strong>
+                    O boxplot e o histograma comparam a distribuição de álcool no arquivo analisado: os vinhos de <em>Qualidade Comum (0)</em> possuem mediana de <strong>{{ medianas_por_classe.get(0, {}).get('alcohol', '-') }}% vol</strong> (média {{ medias_por_classe.get(0, {}).get('alcohol', '-') }}% vol),
+                    enquanto os vinhos de <em>Alta Qualidade (1)</em> apresentam mediana de <strong>{{ medianas_por_classe.get(1, {}).get('alcohol', '-') }}% vol</strong> (média {{ medias_por_classe.get(1, {}).get('alcohol', '-') }}% vol), evidenciando o papel do teor alcoólico na separação das classes.
+                </div>
+            </div>
+
+            <!-- Visualização 3 -->
+            <div class="grafico-bloco">
+                <h3>Visualização 3: Dispersão Álcool (alcohol) × Acidez Volátil (volatile acidity) por Classe</h3>
+                <img src="{{ url_for('static', filename='graficos/dispersao_alcool_acidez.png', v=versao_grafico) }}" alt="Dispersão Álcool x Acidez Volátil por Classe">
+                <div class="legenda-grafico">
+                    <strong>Relação com a Pergunta do Projeto:</strong>
+                    O gráfico de dispersão mostra como a combinação de variáveis separa melhor as classes: no arquivo <strong>{{ nome_arquivo }}</strong>, os vinhos de <em>Alta Qualidade</em> têm média de álcool de <strong>{{ medias_por_classe.get(1, {}).get('alcohol', '-') }}% vol</strong> e acidez volátil média de <strong>{{ medias_por_classe.get(1, {}).get('volatile acidity', '-') }} g/L</strong>,
+                    contra <strong>{{ medias_por_classe.get(0, {}).get('alcohol', '-') }}% vol</strong> e <strong>{{ medias_por_classe.get(0, {}).get('volatile acidity', '-') }} g/L</strong> nos vinhos de <em>Qualidade Comum</em>.
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 4: COMPARAÇÃO E AVALIAÇÃO DE MODELOS -->
+        <section class="card">
+            <h2>4. Treinamento, Linha de Base e Comparação Obrigatória de Modelos</h2>
+            <p>
+                <strong>Configuração do Treinamento e Prevenção de Vazamento:</strong>
+                Base utilizada no treino: <code>{{ info_modelo.base_usada }}</code> (Versão {{ info_modelo.versao_modelo }}).
+                Após remover <strong>{{ info_modelo.duplicatas_removidas_treino }}</strong> linhas duplicadas (restaurando {{ info_modelo.linhas_limpas_treino }} registros únicos),
+                os dados foram divididos com <code>train_test_split(test_size=0.20, random_state={{ info_modelo.random_state }}, stratify=y)</code>:
+                <strong>{{ info_modelo.tamanho_treino }} exemplos (80%) para treino</strong> e <strong>{{ info_modelo.tamanho_teste }} exemplos (20%) para teste</strong>.
+            </p>
+            <p style="margin-top: 0.5rem;">
+                <strong>Distribuição no Conjunto de Teste e Linha de Base (Baseline):</strong>
+                Dos {{ info_modelo.tamanho_teste }} vinhos do teste, <strong>{{ info_modelo.qtd_comum_teste }} ({{ info_modelo.perc_comum_teste }}%)</strong> são da classe <em>Qualidade Comum (0)</em>
+                e <strong>{{ info_modelo.qtd_alta_teste }} ({{ info_modelo.perc_alta_teste }}%)</strong> são da classe <em>Alta Qualidade (1)</em>.
+                Portanto, um classificador ingênuo que chutasse sempre a classe mais frequente ("Qualidade Comum") teria <strong>Acurácia de Linha de Base = {{ info_modelo.linha_de_base }}%</strong> (porém com 0% de Recall para vinhos de alta qualidade).
+            </p>
+
+            <h3>Tabela Comparativa de Métricas no Conjunto de Teste</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Modelo Testado</th>
+                        <th>Acurácia (Teste)</th>
+                        <th>Ganho sobre Linha de Base ({{ info_modelo.linha_de_base }}%)</th>
+                        <th>Precisão (Classe Alta)</th>
+                        <th>Recall (Classe Alta)</th>
+                        <th>F1-Score (Classe Alta)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in info_modelo.modelos %}
+                    <tr>
+                        <td>
+                            <strong>{{ m.nome }}</strong>
+                            {% if m.nome == info_modelo.modelo_escolhido %}
+                                <span class="badge-escolhido">ESCOLHIDO</span>
+                            {% endif %}
+                            <br><small style="color: #d6d6dc;">{{ m.descricao }}</small>
+                        </td>
+                        <td><strong>{{ m.acuracia }}%</strong></td>
+                        <td>+{{ (m.acuracia - info_modelo.linha_de_base)|round(2) }} p.p.</td>
+                        <td>{{ m.precisao }}%</td>
+                        <td>{{ m.recall }}%</td>
+                        <td><strong>{{ m.f1 }}%</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Matrizes de Confusão no Conjunto de Teste (N={{ info_modelo.tamanho_teste }})</h3>
+            <div class="matrizes-grid">
+                {% for m in info_modelo.modelos %}
+                <div class="matriz-card">
+                    <h4 style="color: #ffffff; margin-bottom: 0.5rem;">{{ m.nome }}</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Eixo Real \ Eixo Previsto</th>
+                                <th>Previsto: Qualidade Comum (0)</th>
+                                <th>Previsto: Alta Qualidade (1)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Real: Qualidade Comum (0)</th>
+                                <td style="background: #143625; color: #ffffff;"><strong>{{ m.vn }}</strong> (Verdadeiro Negativo)</td>
+                                <td style="background: #4a151b; color: #ffffff;"><strong>{{ m.fp }}</strong> (Falso Positivo)</td>
+                            </tr>
+                            <tr>
+                                <th>Real: Alta Qualidade (1)</th>
+                                <td style="background: #3d2f14; color: #ffffff;"><strong>{{ m.fn }}</strong> (Falso Negativo)</td>
+                                <td style="background: #143625; color: #ffffff;"><strong>{{ m.vp }}</strong> (Verdadeiro Positivo)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+
+            <h3>Interpretação dos Erros (Falsos Positivos vs. Falsos Negativos)</h3>
+            <p style="margin-top: 0.4rem;">{{ info_modelo.interpretacao_erros }}</p>
+
+            <div class="destaque-escolhido">
+                <h3 style="color: #ffffff; margin-top: 0;">Modelo Escolhido para a Aplicação Final: {{ info_modelo.modelo_escolhido }}</h3>
+                <p style="margin-top: 0.35rem;">{{ info_modelo.justificativa_escolha }}</p>
+            </div>
+
+            <div style="margin-top: 1.4rem;">
+                <a href="{{ url_for('previsao') }}" class="btn">Testar Modelo no Formulário de Previsão &rarr;</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
